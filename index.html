@@ -3,107 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Being Developed </title>
+    <title>Eymen Meral - GitHub King</title>
+    <!-- Use Preconnect for faster loading -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
-        /* CSS Variables */
-        :root {
-            --dark-bg: #121212;
-            --dark-surface: #1e1e1e;
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0a0;
-            --accent-color: #bb86fc;
+        /* --- GENERAL RESET AND FONTS --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        /* Base Page Styles */
+        /* --- MATRIX THEME AND COLOR DEFINITIONS --- */
+        :root {
+            /* Color palette shifted to Matrix Green and Black tones */
+            --primary-color: #00ff00; /* Matrix Green */
+            --secondary-color: #ff00ff; /* Accent Purple */
+            --text-color: #f0f0f0; /* Light Gray text */
+            --bg-color: #0a0a0a; /* Deep Black Background */
+            --card-bg: rgba(10, 10, 10, 0.85); /* Slightly transparent dark cards */
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.5);
+            
+            /* NEON EFFECT DEFINITIONS */
+            --neon-shadow-h1: 0 0 10px #fff, 0 0 20px var(--primary-color), 0 0 30px var(--primary-color), 0 0 40px #00aaff;
+            --badge-glow: 0 0 5px var(--primary-color), 0 0 15px rgba(0, 255, 0, 0.5); 
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            scroll-behavior: smooth;
+            position: relative;
+            /* Prevents horizontal scrolling caused by large element shadows */
+            overflow-x: hidden; 
+        }
+        
+        /* --- MATRIX CANVAS STYLE --- */
+        #matrixCanvas {
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; 
+            /* Ensure the canvas starts hidden until JS initializes dimensions */
+            display: none; 
+        }
+        
+        /* --- CONTENT WRAPPER --- */
+        .content-wrapper {
+            position: relative;
+            z-index: 1; 
+        }
+
+        /* --- NAVIGATION --- */
+        header {
+            background: rgba(0, 0, 0, 0.8); 
+            backdrop-filter: blur(3px); 
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color); 
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li a {
+            color: var(--text-color); 
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* --- GENERAL SECTION STYLES --- */
+        section {
+            padding: 6rem 5%;
+            text-align: center;
+            background: var(--card-bg); 
+            color: var(--text-color);
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2); 
+        }
+
+        h2 {
+            font-size: 2.8rem;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* --- HOME (HERO) SECTION --- */
+        .hero {
+            background: rgba(0, 0, 0, 0.7); 
+            height: 90vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: var(--dark-bg);
-            color: var(--text-primary);
-            transition: background-color 0.5s;
-            position: relative; /* Reference for absolute positioning */
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            /* Slightly simplified clip-path for broader browser compatibility */
+            clip-path: polygon(0 0, 100% 0, 100% 95%, 0 100%); 
         }
 
-        /* Logo Style (Top Right) */
-        .logo {
-            position: absolute; /* Absolute positioning */
-            top: 25px; 
-            right: 25px; 
-            width: 50px; 
-            height: 50px; 
-            border-radius: 50%; 
-            overflow: hidden; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); 
-            z-index: 10; 
+        .hero-content {
+            max-width: 800px;
         }
 
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; 
-        }
-
-        /* Content Box Style */
-        .container {
-            text-align: center;
-            padding: 40px 50px;
-            border-radius: 12px;
-            background-color: var(--dark-surface);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-            max-width: 90%;
-            width: 450px;
-            border: 1px solid #333;
-        }
-
-        .icon {
-            font-size: 5em;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            animation: spin 3s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            
+            /* NEON TEXT EFFECT */
+            color: white;
+            text-shadow: var(--neon-shadow-h1);
+            animation: pulsate 1.5s infinite alternate;
         }
         
-        h1 {
-            color: var(--text-primary);
-            font-size: 2.2em;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
+        @keyframes pulsate {
+            from {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--primary-color), 0 0 20px var(--primary-color);
+            }
+            to {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--primary-color), 0 0 40px var(--primary-color);
+            }
         }
 
-        p {
-            color: var(--text-secondary);
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 8px;
+        .hero-content p {
+            font-size: 1.4rem;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
         }
 
-        .highlight {
-            color: var(--accent-color);
-            font-weight: bold;
+        /* --- BUTTONS --- */
+        .button-primary {
+            background-color: var(--primary-color); 
+            color: #111;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7); 
+            /* Added margin-top for better spacing on mobile */
+            margin-top: 10px;
+        }
+
+        .button-primary:hover {
+            background-color: #00ee00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 1);
+            transform: translateY(-2px);
+        }
+
+        /* --- ABOUT SECTION --- */
+        #hakkimda {
+            background-color: var(--card-bg);
+            padding-top: 2rem;
+        }
+
+        .about-container {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .profile-pic {
+            width: 200px;
+            min-width: 200px; /* Ensure size on flex containers */
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--primary-color);
+            box-shadow: var(--badge-glow); 
+        }
+
+        .about-text {
+            flex-grow: 1;
+        }
+
+        .skills-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding-inline-start: 0; /* Fix for list style on some browsers */
+        }
+
+        .skills-list li {
+            /* NEON BOX EFFECT */
+            background-color: rgba(0, 0, 0, 0.5); 
+            color: var(--primary-color);
+            padding: 5px 15px;
+            border-radius: 5px; 
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--primary-color);
+            box-shadow: var(--badge-glow); 
+            transition: all 0.3s ease;
+        }
+        
+        .skills-list li:hover {
+            background-color: var(--primary-color);
+            color: #111;
+            box-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+        }
+
+        /* --- CONTACT SECTION --- */
+        #iletisim {
+            background-color: var(--card-bg); 
+        }
+
+        .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 400px;
+            margin: 0 auto 30px auto;
+        }
+        
+        .contact-methods a {
+            font-size: 1.1rem;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .contact-methods a:hover {
+            color: var(--primary-color);
+        }
+
+        .contact-methods i {
+            margin-right: 10px;
+            color: var(--primary-color); 
+            font-size: 1.5rem;
+            width: 25px; 
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #000; 
+            color: var(--primary-color);
+            text-align: center;
+            padding: 1.5rem 0;
+            font-size: 0.9rem;
+            box-shadow: 0 -5px 10px rgba(0, 255, 0, 0.1);
+        }
+
+        /* --- RESPONSIVE ADJUSTMENTS (Mobile) --- */
+        @media (max-width: 768px) {
+            .hero { height: 60vh; clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%); }
+            .hero-content h1 { font-size: 2.5rem; }
+            .hero-content p { font-size: 1rem; }
+            section { padding: 4rem 5%; }
+            
+            .about-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-pic {
+                margin-bottom: 20px;
+            }
+            .skills-list {
+                justify-content: center;
+            }
+        }
+        /* Mobile Navigation Fix */
+        @media (max-width: 500px) {
+            header {
+                flex-direction: column;
+                padding: 1rem 5%;
+            }
+            nav ul {
+                padding-top: 10px;
+                gap: 15px;
+            }
         }
     </style>
-</head>
+    </head>
 <body>
+    
+    <canvas id="matrixCanvas"></canvas>
 
-    <div class="logo">
-        <img src="https://imagizer.imageshack.com/v2/460x460q90/r/922/QmicA4.png" alt="Company Logo">
-    </div>
+    <div class="content-wrapper">
 
-    <div class="container">
-        <div class="icon">⚙️</div>
-        <h1>Website Under Construction</h1>
-        <p>This section is being <span class="highlight">rebuilt</span> with new and exciting features.</p>
-        <p>We are working hard to make your experience better.</p>
-        <p style="margin-top: 25px;">See you soon!</p>
-    </div>
+        <header>
+            <div class="logo" aria-label="Eymen Meral Portfolio Home">Eymen Meral</div>
+            <nav aria-label="Main Navigation">
+                <ul>
+                    <li><a href="#anasayfa">Home</a></li>
+                    <li><a href="#hakkimda">About</a></li>
+                    <li><a href="#iletisim">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
 
+        <section id="anasayfa" class="hero">
+            <div class="hero-content">
+                <h1>Hello, I am a Professional Working in the GitHub Field</h1>
+                <p>I create innovative designs and effective solutions.</p>
+                <a href="#iletisim" class="button-primary">Get in Touch <i class="fas fa-envelope"></i></a>
+            </div>
+        </section>
+
+        <section id="hakkimda">
+            <h2>About Me</h2>
+            <div class="about-container">
+                <!-- Added onerror handler for better image loading robustness -->
+                <img 
+                    src="https://avatars.githubusercontent.com/u/243920268?v=4" 
+                    alt="Eymen Meral's Profile Picture" 
+                    class="profile-pic"
+                    onerror="this.onerror=null; this.src='https://placehold.co/200x200/0a0a0a/00ff00?text=Eymen'"
+                >
+                <div class="about-text">
+                    <p style="margin-bottom: 20px;">
+                        As Eymen Meral, I am a professional working in the GitHub field. I love developing user-centric designs and clean coding solutions. My goal is to deliver projects that are flawless in both aesthetics and functionality.
+                    </p>
+                    
+                    <h3>My Skills:</h3>
+                    <ul class="skills-list">
+                        <li>HTML5</li>
+                        <li>CSS3</li>
+                        <li>JavaScript</li>
+                        <li>TypeScript</li>
+                        <li>Python</li>
+                        <li>Git</li>
+                        <li>Responsive Design</li>
+                        <li>Web Development</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="iletisim">
+            <h2>Contact Me</h2>
+            <p>Get in touch with me for project proposals and collaborations:</p>
+            
+            <div class="contact-methods">
+                <a href="mailto:eymenmeral518ta@gmail.com">
+                    <i class="fas fa-envelope"></i> eymenmeral518ta@gmail.com
+                </a>
+                
+                <a href="https://github.com/eymenmeral518ta-ux" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-github"></i> eymenmeral518ta-ux
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 Eymen Meral. All Rights Reserved. // System Status: Online</p>
+        </footer>
+
+    </div> <script>
+        /**
+         * Matrix Effect JavaScript Code
+         */
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Initial setup variables
+        let width = 0;
+        let height = 0;
+        let columns = 0;
+        let drops = [];
+        
+        // Character Set (Inspired by Matrix)
+        const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%^&*()_+{}[]:;<>,./?|`~';
+        
+        /**
+         * Sets up the canvas dimensions and drop array.
+         */
+        function setupMatrix() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            columns = Math.floor(width / 20);
+            drops = [];
+            
+            for (let i = 0; i < columns; i++) {
+                // Initialize drops randomly offset to avoid a synchronous start
+                drops[i] = Math.floor(Math.random() * height / 20); 
+            }
+            // Make the canvas visible after setup
+            canvas.style.display = 'block'; 
+        }
+
+        /**
+         * Draws one frame of the Matrix rain animation.
+         */
+        function drawMatrix() {
+            // Paint background black (with transparency to fade old drops)
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.fillStyle = '#0F0'; // Green Matrix Color
+            ctx.font = '20px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                // Select a random character
+                const text = charSet.charAt(Math.floor(Math.random() * charSet.length));
+                const x = i * 20;
+                const y = drops[i] * 20;
+                
+                // Draw the character
+                ctx.fillText(text, x, y);
+                
+                // Reset the drop when it reaches the bottom, with a probability (0.975 -> 2.5% chance of reset)
+                if (y > height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        // 1. Initial setup and start animation on load
+        window.addEventListener('load', () => {
+            setupMatrix();
+            // Start the animation loop
+            setInterval(drawMatrix, 50); 
+        });
+        
+        // 2. Resize listener
+        window.addEventListener('resize', setupMatrix);
+        
+        // 3. Smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href');
+                if (targetId.length > 1) { 
+                    e.preventDefault();
+                    // Use a safe guard for the target element
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                         targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
+

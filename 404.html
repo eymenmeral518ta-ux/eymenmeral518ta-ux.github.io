@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 - Page Not Found</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #0a0a10;
+        font-family: Arial, sans-serif;
+    }
+
+    .text-box {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+        z-index: 10;
+        user-select: none;
+    }
+
+    h1 {
+        font-size: 120px;
+        margin: 0;
+        background: linear-gradient(45deg, #8a2be2, #ff00ff);
+        -webkit-background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 25px #9b00ff;
+    }
+
+    p {
+        font-size: 22px;
+        opacity: 0.8;
+    }
+
+    a {
+        display: inline-block;
+        margin-top: 25px;
+        padding: 12px 25px;
+        background: #8a2be2;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        box-shadow: 0 0 20px #8a2be2;
+        transition: 0.2s;
+    }
+
+    a:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px #b300ff;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div class="text-box">
+    <h1>404</h1>
+    <p>The page you're looking for doesn't exist.</p>
+
+    <!-- ANA SAYFAYA GİDEN ÖZEL BUTON -->
+    <a href="https://eymenmeral518ta-ux.github.io/">Return Home</a>
+</div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = 2 + Math.random() * 3;
+        this.speedX = (Math.random() - 0.5) * 1.2;
+        this.speedY = (Math.random() - 0.5) * 1.2;
+        this.color = `rgba(${150+Math.random()*100},0,255,0.8)`;
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.color;
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function init() {
+    for (let i = 0; i < 120; i++) {
+        particles.push(new Particle());
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+
+    requestAnimationFrame(animate);
+}
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+init();
+animate();
+</script>
+
+</body>
+</html>

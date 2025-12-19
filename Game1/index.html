@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Breakout - Immortal Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #050505;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            background: #000;
+            border: 2px solid #111;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+        .retro-text {
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .bot-active-border {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.3) !important;
+        }
+        .immortal-glow {
+            text-shadow: 0 0 10px #f59e0b;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen text-slate-100 p-4">
+
+    <!-- Header UI -->
+    <div class="w-full max-w-[400px] flex justify-between items-end mb-4 px-2">
+        <div>
+            <h1 id="gameTitle" class="text-2xl font-black text-cyan-400 tracking-tighter retro-text uppercase">Neon Breakout</h1>
+            <p id="modeStatus" class="text-[10px] text-amber-500 font-mono font-bold uppercase tracking-widest immortal-glow">Immortal Mode: ON</p>
+            <p id="botStatus" class="hidden text-[10px] text-green-500 font-mono animate-pulse uppercase tracking-widest">Bot Override Active</p>
+        </div>
+        <div class="text-right">
+            <p class="text-xs text-slate-500 uppercase font-mono">Score</p>
+            <p id="scoreDisplay" class="text-2xl font-bold font-mono">000</p>
+        </div>
+    </div>
+
+    <!-- Game Viewport -->
+    <div class="relative group">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Win Overlay -->
+        <div id="overlay" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-20 rounded hidden">
+            <h2 class="text-4xl font-black text-cyan-400 mb-2 italic">LEVEL CLEARED</h2>
+            <p id="finalScore" class="text-white font-mono mb-8">Final Score: 0</p>
+            <button id="restartBtn" class="px-10 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold tracking-widest rounded-sm transition-all transform active:scale-95">
+                PLAY AGAIN
+            </button>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="mt-8 flex flex-col items-center gap-6 w-full max-w-[400px]">
+        <!-- Hack Access -->
+        <button id="hackTrigger" class="text-[9px] text-slate-700 hover:text-red-500 transition-colors uppercase tracking-[0.4em] font-mono">
+            [ UNLOCK_SUDO_ACCESS ]
+        </button>
+
+        <p class="text-slate-500 text-[10px] text-center font-mono uppercase tracking-widest opacity-50">
+            No Game Over. Drag to move or use arrow keys.
+        </p>
+    </div>
+
+    <!-- Hack Modal -->
+    <div id="hackModal" class="fixed inset-0 bg-black/95 flex items-center justify-center hidden z-50">
+        <div class="w-full max-w-xs p-8 border border-green-900 bg-slate-950 rounded-lg">
+            <p class="text-green-500 font-mono text-[10px] mb-2 uppercase tracking-widest">Terminal Password:</p>
+            <input type="text" id="hackInput" placeholder="ENTER CODE" class="w-full bg-black border border-green-900 p-3 text-green-500 text-center text-xl tracking-[0.3em] focus:outline-none focus:border-green-400 mb-6 font-mono">
+            <div class="flex gap-4">
+                <button id="cancelHack" class="text-slate-600 text-[10px] uppercase font-mono">Abort</button>
+                <button id="confirmHack" class="flex-1 bg-green-950 text-green-400 py-2 border border-green-800 font-bold font-mono text-sm uppercase">Execute</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const overlay = document.getElementById('overlay');
+        const restartBtn = document.getElementById('restartBtn');
+        
+        // Configuration
+        const config = {
+            paddleWidth: 90,
+            paddleHeight: 12,
+            ballRadius: 7,
+            brickRows: 6,
+            brickCols: 8,
+            brickPadding: 6,
+            brickOffsetTop: 40,
+            brickOffsetLeft: 15
+        };
+
+        // Resize
+        function resize() {
+            canvas.width = Math.min(window.innerWidth - 40, 400);
+            canvas.height = 500;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Game State
+        let state = {
+            score: 0,
+            paddleX: (canvas.width - config.paddleWidth) / 2,
+            ballX: canvas.width / 2,
+            ballY: canvas.height - 35,
+            dx: 3.5,
+            dy: -3.5,
+            isWin: false,
+            isBotActive: false,
+            bricks: []
+        };
+
+        function initBricks() {
+            state.bricks = [];
+            const brickWidth = (canvas.width - (config.brickOffsetLeft * 2) - (config.brickPadding * (config.brickCols - 1))) / config.brickCols;
+            for (let c = 0; c < config.brickCols; c++) {
+                state.bricks[c] = [];
+                for (let r = 0; r < config.brickRows; r++) {
+                    state.bricks[c][r] = { x: 0, y: 0, status: 1, color: `hsl(${r * 30 + 190}, 90%, 50%)` };
+                }
+            }
+        }
+
+        // Controls
+        function movePaddle(e) {
+            let relativeX;
+            if (e.type.includes('touch')) {
+                relativeX = e.touches[0].clientX - canvas.offsetLeft;
+            } else {
+                relativeX = e.clientX - canvas.offsetLeft;
+            }
+            if (relativeX > 0 && relativeX < canvas.width) {
+                state.paddleX = relativeX - config.paddleWidth / 2;
+            }
+        }
+
+            // Keyboard and Touch events
+        document.addEventListener("mousemove", movePaddle, false);
+        document.addEventListener("touchmove", (e) => { 
+            if(e.cancelable) e.preventDefault(); 
+            movePaddle(e); 
+        }, { passive: false });
+        
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") state.paddleX -= 30;
+            if (e.key === "ArrowRight") state.paddleX += 30;
+        });
+
+        // Collision Logic
+        function collisionDetection() {
+            const brickWidth = (canvas.width - (config.brickOffsetLeft * 2) - (config.brickPadding * (config.brickCols - 1))) / config.brickCols;
+            for (let c = 0; c < config.brickCols; c++) {
+                for (let r = 0; r < config.brickRows; r++) {
+                    let b = state.bricks[c][r];
+                    if (b.status === 1) {
+                        if (state.ballX > b.x && state.ballX < b.x + brickWidth && state.ballY > b.y && state.ballY < b.y + 15) {
+                            state.dy = -state.dy;
+                            b.status = 0;
+                            state.score += 10;
+                            scoreDisplay.innerText = state.score.toString().padStart(3, '0');
+                            if (state.score === config.brickRows * config.brickCols * 10) {
+                                state.isWin = true;
+                                overlay.classList.remove('hidden');
+                                document.getElementById('finalScore').innerText = "Final Score: " + state.score;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(state.ballX, state.ballY, config.ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = state.isBotActive ? "#22c55e" : "#f59e0b";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = state.isBotActive ? "#22c55e" : "#f59e0b";
+            ctx.fill();
+            ctx.closePath();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.roundRect(state.paddleX, canvas.height - config.paddleHeight - 10, config.paddleWidth, config.paddleHeight, 6);
+            ctx.fillStyle = state.isBotActive ? "#16a34a" : "#0ea5e9";
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = state.isBotActive ? "#22c55e" : "#0ea5e9";
+            ctx.fill();
+            ctx.closePath();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawBricks() {
+            const brickWidth = (canvas.width - (config.brickOffsetLeft * 2) - (config.brickPadding * (config.brickCols - 1))) / config.brickCols;
+            for (let c = 0; c < config.brickCols; c++) {
+                for (let r = 0; r < config.brickRows; r++) {
+                    if (state.bricks[c][r].status === 1) {
+                        let brickX = (c * (brickWidth + config.brickPadding)) + config.brickOffsetLeft;
+                        let brickY = (r * (15 + config.brickPadding)) + config.brickOffsetTop;
+                        state.bricks[c][r].x = brickX;
+                        state.bricks[c][r].y = brickY;
+                        ctx.beginPath();
+                        ctx.roundRect(brickX, brickY, brickWidth, 15, 3);
+                        ctx.fillStyle = state.bricks[c][r].color;
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+
+        function update() {
+            if (state.isWin) return;
+
+            // Bot Logic
+            if (state.isBotActive) {
+                let targetX = state.ballX - config.paddleWidth / 2;
+                state.paddleX += (targetX - state.paddleX) * 0.25;
+            }
+
+            // Boundary checks
+            if (state.ballX + state.dx > canvas.width - config.ballRadius || state.ballX + state.dx < config.ballRadius) {
+                state.dx = -state.dx;
+            }
+            
+            // Ceiling bounce
+            if (state.ballY + state.dy < config.ballRadius) {
+                state.dy = -state.dy;
+            } 
+            
+            // Paddle and Floor logic
+            else if (state.ballY + state.dy > canvas.height - config.ballRadius - 10) {
+                if (state.ballX > state.paddleX && state.ballX < state.paddleX + config.paddleWidth) {
+                    // Normal bounce off paddle
+                    let hitPoint = (state.ballX - (state.paddleX + config.paddleWidth / 2)) / (config.paddleWidth / 2);
+                    state.dx = hitPoint * 4.5;
+                    state.dy = -Math.abs(state.dy);
+                } 
+                // IMMORTAL RULE: Bounce anyway if it hits the floor
+                else if (state.ballY + state.dy > canvas.height - config.ballRadius) {
+                    state.dy = -Math.abs(state.dy);
+                }
+            }
+
+            state.ballX += state.dx;
+            state.ballY += state.dy;
+            
+            // Constrain paddle
+            if (state.paddleX < 0) state.paddleX = 0;
+            if (state.paddleX > canvas.width - config.paddleWidth) state.paddleX = canvas.width - config.paddleWidth;
+
+            collisionDetection();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid Background
+            ctx.strokeStyle = "#111";
+            ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=40) {
+                ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let i=0; i<canvas.height; i+=40) {
+                ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+
+            drawBricks();
+            drawBall();
+            drawPaddle();
+            
+            update();
+            requestAnimationFrame(draw);
+        }
+
+        function reset() {
+            state.score = 0;
+            state.dx = 3.5;
+            state.dy = -3.5;
+            state.ballX = canvas.width / 2;
+            state.ballY = canvas.height - 35;
+            state.paddleX = (canvas.width - config.paddleWidth) / 2;
+            state.isWin = false;
+            scoreDisplay.innerText = "000";
+            overlay.classList.add('hidden');
+            initBricks();
+        }
+
+        // Hack System
+        const hackTrigger = document.getElementById('hackTrigger');
+        const hackModal = document.getElementById('hackModal');
+        const hackInput = document.getElementById('hackInput');
+        const confirmHack = document.getElementById('confirmHack');
+
+        hackTrigger.onclick = () => hackModal.classList.remove('hidden');
+        document.getElementById('cancelHack').onclick = () => hackModal.classList.add('hidden');
+        
+        confirmHack.onclick = () => {
+            if (hackInput.value === "1132567") {
+                state.isBotActive = true;
+                document.getElementById('botStatus').classList.remove('hidden');
+                document.getElementById('modeStatus').classList.add('hidden');
+                document.getElementById('gameTitle').innerText = "BOT_OVERRIDE";
+                document.getElementById('gameTitle').classList.replace('text-cyan-400', 'text-green-500');
+                canvas.classList.add('bot-active-border');
+                hackModal.classList.add('hidden');
+                hackInput.value = "";
+            } else {
+                hackInput.style.borderColor = "#7f1d1d";
+                setTimeout(() => hackInput.style.borderColor = "", 500);
+            }
+        };
+
+        restartBtn.onclick = reset;
+
+        // Init
+        initBricks();
+        draw();
+    </script>
+</body>
+</html>
+

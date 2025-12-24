@@ -19,6 +19,36 @@ small{color:#888}
 </style>
 </head>
 <body>
+<div style="margin-bottom:20px;padding:12px;border:1px dashed #333">
+  <b>Test Dosyası</b><br>
+  <small>Bu sadece sistemin çalıştığını test etmek içindir.</small><br><br>
+  <button onclick="downloadTest()">Test Dosyasını İndir</button>
+</div>
+
+<script>
+function downloadTest() {
+  const content =
+`ALFABE TEST DOSYASI
+
+A B C Ç D E F G Ğ
+H I İ J K L M N
+O Ö P R S Ş T U Ü
+V Y Z
+
+abcdefghijklmnopqrstuvwxyz`;
+
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "test.txt";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+</script>
+
 
 <!-- HOŞ GELDİN -->
 <div class="overlay" id="welcome">

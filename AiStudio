@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>Yönlendiriliyor...</title>
+
+  <meta http-equiv="refresh" content="0; url=https://aistudio.google.com/apps">
+
+  <script>
+
+    window.location.href = "https://aistudio.google.com/apps";
+
+  </script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>

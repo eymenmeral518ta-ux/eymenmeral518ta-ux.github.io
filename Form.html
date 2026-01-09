@@ -1,6 +1,113 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset="UTF-8">
+<title>500 Soruluk Mega Form</title>
+
+<style>
+    *{box-sizing:border-box;}
+    body{
+        margin:0;
+        padding:0;
+        font-family:Arial, sans-serif;
+        background:linear-gradient(135deg,#5b86e5,#36d1dc);
+        min-height:100vh;
+        color:#222;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+    }
+    h1{
+        margin:20px;
+        color:white;
+        text-shadow:0 2px 5px rgba(0,0,0,.3);
+    }
+    #formPlace{
+        width:90%;
+        max-width:800px;
+        background:white;
+        padding:20px;
+        margin-bottom:20px;
+        border-radius:10px;
+        box-shadow:0 4px 12px rgba(0,0,0,.25);
+        overflow-y:auto;
+        max-height:70vh;
+    }
+
+    /* 🎯 ÖZEL KAYDIRMA ÇUBUĞU */
+    #formPlace::-webkit-scrollbar{
+        width:12px;
+    }
+    #formPlace::-webkit-scrollbar-track{
+        background:#dfe9ff;
+        border-radius:10px;
+    }
+    #formPlace::-webkit-scrollbar-thumb{
+        background:linear-gradient(#5b86e5,#4778e0);
+        border-radius:10px;
+        border:2px solid #dfe9ff;
+    }
+    #formPlace::-webkit-scrollbar-thumb:hover{
+        background:linear-gradient(#4778e0,#355fd8);
+    }
+
+    /* Firefox */
+    #formPlace{
+        scrollbar-width:thin;
+        scrollbar-color:#5b86e5 #dfe9ff;
+    }
+
+    label{font-weight:600;margin-top:10px;display:block;}
+    input{
+        width:100%;
+        padding:8px;
+        margin-top:4px;
+        border-radius:6px;
+        border:1px solid #aaa;
+        background:#f7f7f7;
+        transition:all .2s;
+    }
+    input:focus{
+        outline:none;
+        border-color:#5b86e5;
+        background:white;
+        box-shadow:0 0 4px #5b86e5;
+    }
+    button{
+        padding:12px 20px;
+        font-size:16px;
+        border:none;
+        background:#5b86e5;
+        color:white;
+        border-radius:8px;
+        cursor:pointer;
+        margin-bottom:40px;
+        box-shadow:0 2px 6px rgba(0,0,0,.3);
+        transition:.25s;
+    }
+    button:hover{
+        transform:scale(1.05);
+        background:#4778e0;
+    }
+</style>
+</head>
+
 <body>
-<script>fetch("https://eymenmeral518ta-ux.github.io/form.html").then(r=>r.text()).then(h=>{document.write(h)})</script>
+<h1>500 Soruluk Mega Form</h1>
+<div id="formPlace"></div>
+<button onclick="alert('Gönderildi! (mış gibi 😁)')">Gönder</button>
+
+<script>
+let f=document.getElementById("formPlace");
+for(let i=1;i<=500;i++){
+  let lbl=document.createElement("label");
+  lbl.textContent="Soru "+i+":";
+  let inp=document.createElement("input");
+  inp.placeholder="Cevap "+i;
+  f.appendChild(lbl);
+  f.appendChild(inp);
+}
+</script>
+
 </body>
 </html>
